@@ -1,81 +1,58 @@
-#include <Servo.h>    //Adafruit Motor Shield Library. First you must download and install AFMotor library
-#include <QTRSensors.h> //Pololu QTR Sensor Library. First you must download and install QTRSensors library
-//Mert Arduino https://bit.ly/MertArduino
+/*
+ * 
+ */
+#include <Servo.h>
+#include <QTRSensors.h> // Pololu QTR Sensor Library.
 
-Servo motor1, motor2;
-const int motor1Pin = 11;
-const int motor2Pin = 12;
-//AF_DCMotor motor1(1, MOTOR12_1KHZ ); //create motor #1 using M1 output on Motor Drive Shield, set to 1kHz PWM frequency
-//AF_DCMotor motor2(2, MOTOR12_1KHZ ); //create motor #2 using M2 output on Motor Drive Shield, set to 1kHz PWM frequency
+Servo left_motor, right_motor;
+const int left_motorPin = 11;
+const int right_motorPin = 12;
 
 #define KP 0.2 //experiment to determine this, start by something sm  all that just makes your bot follow the line at a slow speed
 #define KD 0.5 //experiment to determine this, slowly increase the speeds and adjust this value. ( Note: Kp < Kd) 
-#define M1_default_speed 180  //normal speed of the Motor1
-#define M2_default_speed 180  //normal speed of the Motor2
-#define M1_maksimum_speed 180 //max. speed of the Motor1
-#define M2_maksimum_speed 180 //max. speed of the Motor2
-//#define MIDDLE_SENSOR 2       //number of middle sensor used
+#define left_motor_default_speed 180  //normal speed of the left_motor
+#define right_motor_default_speed 180  //normal speed of the right_motor
+#define left_motor_max_speed 180 //max. speed of the left_motor
+#define right_motor_max_speed 180 //max. speed of the right_motor
 
 #define NUM_SENSORS  6        //number of sensors used
 #define TIMEOUT 2500          //waits for 2500 us for sensor outputs to go low
 #define EMITTER_PIN 7         //emitterPin is the Arduino digital pin that controls whether the IR LEDs are on or off. Emitter is controlled by digital pin 2
-#define DEBUG 1
+#define DEBUG 0
 
-//sensors 0 through 5 are connected to analog inputs 0 through 5, respectively
-QTRSensorsRC qtrrc((unsigned char[]) {
-  1, 2, 3, 4, 5, 6
-},
-NUM_SENSORS, TIMEOUT, EMITTER_PIN);
+// sensors are connected to digital pins 1 to 6
+QTRSensorsRC qtrrc((unsigned char[]) {1, 2, 3, 4, 5, 6},
+  NUM_SENSORS, TIMEOUT, EMITTER_PIN);
 
 unsigned int sensorValues[NUM_SENSORS];
+int lastError = 0;
 
 void setup() {
-  motor1.attach(motor1Pin);
-  motor2.attach(motor2Pin);
-  set_motors(90, 90); // set the motors not moving
-  delay(1500);
+  left_motor.attach(left_motorPin);
+  right_motor.attach(right_motorPin);
+  set_motors(90, 90); // set the motors speed zero.
   manual_calibration();
 }
 
-int lastError = 0;
-int last_proportional = 0;
-int integral = 0;
-
 void loop() {
-  //unsigned int sensors[2];
   int position = qtrrc.readLine(sensorValues); //get calibrated readings along with the line position, refer to the QTR Sensors Arduino Library for more details on line position.
 
-  /*
-    // print the sensor values as numbers from 0 to 1000, where 0 means maximum reflectance and
-    // 1000 means minimum reflectance, followed by the line position
-    for (unsigned char i = 0; i < NUM_SENSORS; i++)
-    {
-    //Serial.print(sensorValues[i]);
-    //Serial.print('\t');
-    }
-    //Serial.println(); // uncomment this line if you are using raw values
-    String pos = "Position: ";
-    String fpos = pos + position;
-    Serial.println(fpos); // comment this line out if you are using raw values
-  */
-  int error = -2500 + position;
-  /*
-    String err = "Error: ";
-    String ferr = err + error;
-    Serial.println(ferr);
-    Serial.println();*/
+  if (DEBUG) print_sensor_values(position);
+
+  int error = position - 2500;
+  
+  if (DEBUG) print_error(error);
 
   int motorSpeed = KP * error + KD * (error - lastError);
-  //Serial.println(motorSpeed);
+  
+  if (DEBUG) print_motorSpeed(motorSpeed);
 
   lastError = error;
 
-  int leftMotorSpeed = 180 - M1_default_speed - motorSpeed; // closer to 0, speed up
-  int rightMotorSpeed = M2_default_speed - motorSpeed; // closer to 180, speed up, so slow down here
-  //Serial.println(leftMotorSpeed);
-  //Serial.println(rightMotorSpeed);
-
-  //delay(10);
+  int leftMotorSpeed = 180 - left_motor_default_speed - motorSpeed; // closer to 0, speed up
+  int rightMotorSpeed = right_motor_default_speed - motorSpeed; // closer to 180, speed up, so slow down here
+  
+  if (DEBUG) print_left_right_motorSpeed(leftMotorSpeed, rightMotorSpeed);
 
   // set motor speeds using the two motor speed variables above
   // limit their speed to 90~180
@@ -84,28 +61,19 @@ void loop() {
   //set_motors(180, 180);
 }
 
-
-
-
-void set_motors(int motor1speed, int motor2speed) {
-  if (180 - motor1speed > M1_maksimum_speed ) motor1speed = 180 - M1_maksimum_speed;  // if speed is negative, use 0 instrad
-  if (motor2speed > M2_maksimum_speed ) motor2speed = M2_maksimum_speed;
-  if ( motor1speed > 90) motor1speed = 90;   // avoid spinning backward
-  if (motor2speed < 90) motor2speed = 90;
-  //motor1speed = 180 - motor1speed;
-  motor1.write(motor1speed);
-  motor2.write(motor2speed);
+void set_motors(int left_motorspeed, int right_motorspeed) {
+  if (180 - left_motorspeed > left_motor_max_speed ) left_motorspeed = 180 - left_motor_max_speed;  // if speed is negative, use 0 instead
+  if (right_motorspeed > right_motor_max_speed ) right_motorspeed = right_motor_max_speed;
+  if ( left_motorspeed > 90) left_motorspeed = 90;   // avoid spinning backward
+  if (right_motorspeed < 90) right_motorspeed = 90;
+  //left_motorspeed = 180 - left_motorspeed;
+  left_motor.write(left_motorspeed);
+  right_motor.write(right_motorspeed);
 }
-
-
-
 
 void manual_calibration() {
   //calibrate for sometime by sliding the sensors across the line,
   //or you may use auto-calibration instead
-  pinMode(2, OUTPUT);
-  digitalWrite(2, LOW);
-  delay(500);
 
   pinMode(13, OUTPUT);
   digitalWrite(13, HIGH);    // turn on Arduino's LED to indicate we are in calibration mode
@@ -118,20 +86,50 @@ void manual_calibration() {
 
   // print the calibration minimum values measured when emitters were on
   Serial.begin(9600);
-  for (int i = 0; i < NUM_SENSORS; i++)
-  {
+  for (int i = 0; i < NUM_SENSORS; i++){
     Serial.print(qtrrc.calibratedMinimumOn[i]);
     Serial.print(' ');
   }
   Serial.println();
 
   // print the calibration maximum values measured when emitters were on
-  for (int i = 0; i < NUM_SENSORS; i++)
-  {
+  for (int i = 0; i < NUM_SENSORS; i++){
     Serial.print(qtrrc.calibratedMaximumOn[i]);
     Serial.print(' ');
   }
   Serial.println();
-  Serial.println();
-  delay(1000);
+  // delay(1000);
+}
+
+void print_sensor_values(int position){
+    // print the sensor values as numbers from 0 to 1000, where 0 means maximum reflectance and
+    // 1000 means minimum reflectance, followed by the line position
+    for (unsigned char i = 0; i < NUM_SENSORS; i++){
+      Serial.print(sensorValues[i]);
+      Serial.print('\t');
+    }
+    //Serial.println(); // uncomment this line if you are using raw values
+    //String pos = "Position: ";
+    //String fpos = pos + position;
+    Serial.println(position); // comment this line out if you are using raw values
+    return;
+}
+
+void print_error(int error){
+    String err = "Error: ";
+    String ferr = err + error;
+    Serial.println(ferr);
+    Serial.println();
+    return;
+}
+
+void print_motorSpeed(int motorSpeed){
+  Serial.println(motorSpeed);
+  return;
+}
+
+void print_left_right_motorSpeed(int leftMotorSpeed, int rightMotorSpeed){
+  Serial.println(leftMotorSpeed);
+  Serial.println(rightMotorSpeed);  
+  return;
 }
