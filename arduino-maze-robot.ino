@@ -5,6 +5,9 @@
 #include <QTRSensors.h> // Pololu QTR Sensor Library.
 
 Servo left_motor, right_motor;
+Servo gripper, lifter;
+const int lifterPin = 9;
+const int gripperPin = 10;
 const int left_motorPin = 11;
 const int right_motorPin = 12;
 
@@ -18,7 +21,7 @@ const int right_motorPin = 12;
 #define NUM_SENSORS  6        //number of sensors used
 #define TIMEOUT 2500          //waits for 2500 us for sensor outputs to go low
 #define EMITTER_PIN 7         //emitterPin is the Arduino digital pin that controls whether the IR LEDs are on or off. Emitter is controlled by digital pin 2
-#define DEBUG 0
+#define DEBUG 1
 
 // sensors are connected to digital pins 1 to 6
 QTRSensorsRC qtrrc((unsigned char[]) {1, 2, 3, 4, 5, 6},
@@ -30,7 +33,11 @@ int lastError = 0;
 void setup() {
   left_motor.attach(left_motorPin);
   right_motor.attach(right_motorPin);
+  gripper.attach(gripperPin);
+  lifter.attach(lifterPin);
   set_motors(90, 90); // set the motors speed zero.
+  init_gripper();
+  init_lifter();
   manual_calibration();
 }
 
@@ -41,24 +48,24 @@ void loop() {
 
   int error = position - 2500;
   
-  if (DEBUG) print_error(error);
+  //if (DEBUG) print_error(error);
 
   int motorSpeed = KP * error + KD * (error - lastError);
   
-  if (DEBUG) print_motorSpeed(motorSpeed);
+  //if (DEBUG) print_motorSpeed(motorSpeed);
 
   lastError = error;
 
   int leftMotorSpeed = 180 - left_motor_default_speed - motorSpeed; // closer to 0, speed up
   int rightMotorSpeed = right_motor_default_speed - motorSpeed; // closer to 180, speed up, so slow down here
   
-  if (DEBUG) print_left_right_motorSpeed(leftMotorSpeed, rightMotorSpeed);
+  //if (DEBUG) print_left_right_motorSpeed(leftMotorSpeed, rightMotorSpeed);
 
   // set motor speeds using the two motor speed variables above
   // limit their speed to 90~180
   set_motors(leftMotorSpeed, rightMotorSpeed);
   //set_motors(90, 90);
-  //set_motors(180, 180);
+  //set_motors(0, 180);
 }
 
 void set_motors(int left_motorspeed, int right_motorspeed) {
@@ -69,6 +76,36 @@ void set_motors(int left_motorspeed, int right_motorspeed) {
   //left_motorspeed = 180 - left_motorspeed;
   left_motor.write(left_motorspeed);
   right_motor.write(right_motorspeed);
+}
+
+void init_lifter(){
+  lifter.write(180);
+  return;
+}
+
+void lift(){
+  lifter.write(35);
+  return;
+}
+
+void unlift(){
+  lifter.write(180);
+  return;
+}
+
+void init_gripper(){
+  gripper.write(0);
+  return;
+}
+
+void open_gripper(){
+  gripper.write(0);
+  return;
+}
+
+void close_gripper(){
+  gripper.write(35);
+  return;
 }
 
 void manual_calibration() {
