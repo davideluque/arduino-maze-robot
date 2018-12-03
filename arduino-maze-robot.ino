@@ -20,11 +20,11 @@ const int right_motorPin = 12;
 
 #define NUM_SENSORS  6        //number of sensors used
 #define TIMEOUT 2500          //waits for 2500 us for sensor outputs to go low
-#define EMITTER_PIN 7         //emitterPin is the Arduino digital pin that controls whether the IR LEDs are on or off. Emitter is controlled by digital pin 2
+#define EMITTER_PIN 8         //emitterPin is the Arduino digital pin that controls whether the IR LEDs are on or off. Emitter is controlled by digital pin 2
 #define DEBUG 1
 
 // sensors are connected to digital pins 1 to 6
-QTRSensorsRC qtrrc((unsigned char[]) {1, 2, 3, 4, 5, 6},
+QTRSensorsRC qtrrc((unsigned char[]) {2, 3, 4, 5, 6, 7},
   NUM_SENSORS, TIMEOUT, EMITTER_PIN);
 
 unsigned int sensorValues[NUM_SENSORS];
@@ -168,5 +168,31 @@ void print_motorSpeed(int motorSpeed){
 void print_left_right_motorSpeed(int leftMotorSpeed, int rightMotorSpeed){
   Serial.println(leftMotorSpeed);
   Serial.println(rightMotorSpeed);  
+  return;
+}
+
+bool reflectance_dead_end(int position){
+  int lower_bound = 2300;
+  int higher_bound = 2700;
+  if (position > 2300 and position < 2700){
+    return true;
+  }
+  return false;
+}
+
+void check_u_turn(int position){
+  u_turn = false; // we assume we shouldn't u-turn
+  // stage1: check for reflectance bounds in a 
+  u_turn = reflectance_dead_end(position);
+
+  return u_turn;
+}
+
+void u_turn(){
+  for (int i=0; i<22500;i++){
+    motor1.write(0);
+    motor2.write(0);
+  }
+  set_motors(90, 90);
   return;
 }
