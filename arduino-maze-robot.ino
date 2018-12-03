@@ -171,7 +171,7 @@ void print_left_right_motorSpeed(int leftMotorSpeed, int rightMotorSpeed){
   return;
 }
 
-bool reflectance_dead_end(int position){
+bool check_reflectance_dead_end(int position){
   int lower_bound = 2300;
   int higher_bound = 2700;
   if (position > 2300 and position < 2700){
@@ -181,9 +181,10 @@ bool reflectance_dead_end(int position){
 }
 
 void check_u_turn(int position){
-  u_turn = false; // we assume we shouldn't u-turn
-  // stage1: check for reflectance bounds in a 
-  u_turn = reflectance_dead_end(position);
+  u_turn = false; // we assume we shouldn't do u-turn
+  // stage1: check for reflectance bounds in a fixed range (determined by testing)
+  u_turn = check_reflectance_dead_end(position);
+  // stage2: check for ultra-sound sensor (maybe a variable that has been set before)
 
   return u_turn;
 }
@@ -193,6 +194,6 @@ void u_turn(){
     motor1.write(0);
     motor2.write(0);
   }
-  set_motors(90, 90);
+  //set_motors(90, 90);
   return;
 }
