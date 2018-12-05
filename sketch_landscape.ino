@@ -66,6 +66,8 @@ void loop() {
   // limit their speed to 90~180
   set_motors(leftMotorSpeed, rightMotorSpeed);
   //set_motors(90, 90);  // stop 
+ 
+ Serial.print(landscape());
 }
 
 void set_motors(int left_motorspeed, int right_motorspeed) {
@@ -79,35 +81,6 @@ void set_motors(int left_motorspeed, int right_motorspeed) {
   right_motor.write(right_motorspeed);
 }
 
-void init_lifter(){
-  lifter.write(180);
-  return;
-}
-
-void lift(){
-  lifter.write(35);
-  return;
-}
-
-void unlift(){
-  lifter.write(180);
-  return;
-}
-
-void init_gripper(){
-  gripper.write(0);
-  return;
-}
-
-void open_gripper(){
-  gripper.write(0);
-  return;
-}
-
-void close_gripper(){
-  gripper.write(35);
-  return;
-}
 
 void manual_calibration() {
   //calibrate for sometime by sliding the sensors across the line,
@@ -189,34 +162,7 @@ void check_u_turn(int position){
   u_turn = check_reflectance_dead_end(position);
   // stage2: check for ultra-sound sensor (maybe a variable that has been set before)
 
-  return u_turn;  // 可以返回函数？？？
-}
-
-void u_turn(){
-  for (int i=0; i<22500;i++){
-    motor1.write(0);
-    motor2.write(0);
-  }
-  //set_motors(90, 90);
-  return;
-}
-
-void right_turn(){
-  for (int i=0; i<22500/2;i++){
-    motor1.write(0); // 左轮向前，右轮倒转，是为右转
-    motor2.write(180);
-  }
-  //set_motors(90, 90);
-  return;
-}
-
-void left_turn(){
-  for (int i=0; i<22500/2;i++){
-    motor1.write(180); // 左轮向后，右轮向前，是为左转
-    motor2.write(0);
-  }
-  //set_motors(90, 90);
-  return;
+  return 7;  // 可以返回函数？？？
 }
 
 int landscape(){
