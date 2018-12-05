@@ -225,20 +225,27 @@ int landscape(){
   // also for 'T' and '十'
   //1, 2, 3, 4, 5, 6 corresonds to leftonly, rightonly, T, 十, leftandstraight,
   //rightandstraight 
-  if(online_judge){
+  if(online_judge()){
     delay(1000); // experiment to determine this
-    if(onlyleft_judge) return 1;
-    else return 5;
-    
-    if(onlyright_judge) return 2;
-    else return 6;
+    //这里的逻辑需要重新考虑一下，有坑能出现false全部return到第一个里面
+    if(left_judge()){
+      if (wal_judge()) return 1;
+      else return 5;
+      } 
+      
+    if(right_judge() {
+      if (wall_judge()) return 1;
+      else return 2;
+      }
 
-    if(T_judge) return 3;
-    else return 4;
+    if(T_judge()){
+      if (wall_judge()) return 3;
+      else return 4;
+      }
     }
-
   }
 
+//sensorValues是全局变量，不用传值就可调用
 bool sensor_judge(num, range, erro){
   // experiment to determine if sensorValues[0] is exact the 1st sensor!!!
   if (sensorValues[num] < range + erro && sensorValues[num] > range - erro) return true;
@@ -263,11 +270,12 @@ bool online_judge(){
         return false;
         }
       }
+      // there's no false, then return true
        return true;
      }
   }
 
-bool onlyleft_judge(){
+bool left_judge(){
   // tell onlyleft from 'left and straight'
   // the sensor values should be {1000, 1000, 1000, 1000, 0, 0}
   for (unsigned char i = 0;i < NUM_SENSORS; i++){
@@ -285,11 +293,12 @@ bool onlyleft_judge(){
         return false;
         }
       }
+      // there's no false, then return true
        return true;
      }
   }
 
-bool onlyright_judge(){
+bool right_judge(){
   // tell onlylright from 'right and straight'
   // the sensor values should be{0, 0, 1000, 1000, 1000, 1000}
   for (unsigned char i = 0;i < NUM_SENSORS; i++){
@@ -336,5 +345,5 @@ bool T_judge(){
 
 bool wall_judge(){
   // use ultra_sound to judge if there is a wall in fornt
-  
+  // return true if there's a wall in the front  
   }
