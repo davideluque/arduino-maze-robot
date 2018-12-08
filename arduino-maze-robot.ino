@@ -24,7 +24,7 @@ const int right_motorPin = 12;
 #define DEBUG 1
 
 // sensors are connected to digital pins 1 to 6
-QTRSensorsRC qtrrc((unsigned char[]) {2, 3, 4, 5, 6, 7},
+QTRSensorsRC qtrrc((unsigned char[]) {3, 4, 5, 6, 7, 8},
   NUM_SENSORS, TIMEOUT, EMITTER_PIN);
 
 unsigned int sensorValues[NUM_SENSORS];
@@ -44,6 +44,12 @@ void setup() {
 void loop() {
   int position = qtrrc.readLine(sensorValues); //get calibrated readings along with the line position, refer to the QTR Sensors Arduino Library for more details on line position.
 
+  if(check_u_turn(position)){
+    u_turn();
+    position = qtrrc.readLine(sensorValues);
+  }
+  
+  
   if (DEBUG) print_sensor_values(position);
 
   int error = position - 2500;
@@ -172,16 +178,14 @@ void print_left_right_motorSpeed(int leftMotorSpeed, int rightMotorSpeed){
 }
 
 bool check_reflectance_dead_end(int position){
-  int lower_bound = 2300;
-  int higher_bound = 2700;
-  if (position > 2300 and position < 2700){
+  if (position == 5000 or position == 0){
     return true;
   }
   return false;
 }
 
-void check_u_turn(int position){
-  u_turn = false; // we assume we shouldn't do u-turn
+bool check_u_turn(int position){
+  bool u_turn = false; // we assume we shouldn't do u-turn
   // stage1: check for reflectance bounds in a fixed range (determined by testing)
   u_turn = check_reflectance_dead_end(position);
   // stage2: check for ultra-sound sensor (maybe a variable that has been set before)
@@ -191,9 +195,9 @@ void check_u_turn(int position){
 
 void u_turn(){
   for (int i=0; i<22500;i++){
-    motor1.write(0);
-    motor2.write(0);
+    left_motor.write(0);
+    right_motor.write(0);
   }
-  //set_motors(90, 90);
+  set_motors(90, 90);
   return;
 }
