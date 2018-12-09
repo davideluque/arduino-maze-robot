@@ -1,16 +1,16 @@
 /*
  容纳graspping system的控制函数和line following的控制函数
  */
-#include <Servo.h>
+//#include <Servo.h>
 #include <HCSR04.h>
 #include <QTRSensors.h> // Pololu QTR Sensor Library.
 
-Servo left_motor, right_motor;
-Servo gripper, lifter;
+//Servo left_motor, right_motor;
+//Servo gripper, lifter;
 const int TrigPin = 9;
 const int EchoPin = 10;
-const int left_motorPin = 11;
-const int right_motorPin = 12;
+//const int left_motorPin = 11;
+//const int right_motorPin = 12;
 UltraSonicDistanceSensor distanceSensor(TrigPin, EchoPin);
 
 #define KP 0.2 //experiment to determine this, start by something sm  all that just makes your bot follow the line at a slow speed
@@ -33,13 +33,17 @@ unsigned int sensorValues[NUM_SENSORS];
 int lastError = 0;
 
 void setup() {
-  left_motor.attach(left_motorPin);
-  right_motor.attach(right_motorPin);.
+  Serial.begin(9600); // 波特率
+//  left_motor.attach(left_motorPin);
+//  right_motor.attach(right_motorPin);
   manual_calibration();
+  
 }
 
 void loop() {
- Serial.print(landscape());
+  double distance = distanceSensor.measureDistanceCm();   
+  delay(3000);
+  landscape();
 }
 
 void manual_calibration() {
@@ -54,23 +58,20 @@ void manual_calibration() {
     qtrrc.calibrate();       // reads all sensors 10 times at 2500 us per read (i.e. ~25 ms per call)
   }
   digitalWrite(13, LOW);     // turn off Arduino's LED to indicate we are through with calibration
-
   // print the calibration minimum values measured when emitters were on
-  Serial.begin(9600);
   for (int i = 0; i < NUM_SENSORS; i++){
     Serial.print(qtrrc.calibratedMinimumOn[i]);
     Serial.print(' ');
   }
   Serial.println();
-
   // print the calibration maximum values measured when emitters were on
   for (int i = 0; i < NUM_SENSORS; i++){
     Serial.print(qtrrc.calibratedMaximumOn[i]);
     Serial.print(' ');
   }
   Serial.println();
-  // delay(1000);
 }
+
 
 int landscape(){
   // first make sure the car is online, then judge the landscape
@@ -78,131 +79,101 @@ int landscape(){
   // also for 'T' and '十'
   //1, 2, 3, 4, 5, 6 corresonds to leftonly, rightonly, T, 十, leftandstraight,
   //rightandstraight 
+  int position = qtrrc.readLine(sensorValues);
+ 
+  Serial.print(left_judge());
+  Serial.print('\n');
+  /*
   if(online_judge()){
-    delay(1000); // experiment to determine this，实际中这里要不要delay需要商量
-    //这里的逻辑需要重新考虑一下，有坑能出现false全部return到第一个里面
+    // 实际中需要往前跑一段再判断
     if(left_judge()){
-      if (wal_judge()) return 1;
+      if (wall_judge()) return 1;  // use true instead of wall_judge()
       else return 5;
       } 
       
-    if(right_judge() {
-      if (wall_judge()) return 1;
-      else return 2;
+    if(wall_judge()) {
+      if (true) return 2;
+      else return 6;
       }
 
-    if(T_judge()){
-      if (wall_judge()) return 3;
+    if(wall_judge()){
+      if (true) return 3;
       else return 4;
       }
-    }
+    }*/
   }
 
-//sensorValues是全局变量，不用传值就可调用
-bool sensor_judge(num, range, erro){
-  // experiment to determine if sensorValues[0] is exact the 1st sensor!!!
-  if (sensorValues[num] < range + erro && sensorValues[num] > range - erro) return true;
-  else return false; 
+
+bool sensor_judge(unsigned int num, int range, int error){
+  int a = sensorValues[num];
+ if ((a <= range + error) && (a >= range - error)) return true;
+  else return false;
   }
 
 bool online_judge(){
    // first judge if the raw vaues array is 0 0 1000 1000 0 0
   // erro is ±250, change it after experiment
-  for (unsigned char i = 0;i < NUM_SENSORS; i++){
-    if (i != 2 or 3){
-      unsigned int range = 0;
-      unsigned int erro = 250;
-      if (sensor_judge(i, range, erro) == false) {
-        return false;
-        }
-      }
-     else{
-      unsigned int range = 1000;
-      unsigned int erro = 250;
-      if (sensor_judge(i, range, erro) == false){
-        return false;
-        }
-      }
-      // there's no false, then return true
-       return true;
-     }
+  for (unsigned int i = 0;i < NUM_SENSORS; i++){
+    Serial.print(i);
+    Serial.print(' ');
+    Serial.print(sensorValues[i]);
+    Serial.print('\t'); 
+  }  
+  bool a = sensor_judge(0, 125, 125) && sensor_judge(1, 125, 125) && sensor_judge(2, 650, 350);
+  bool b = sensor_judge(3, 650, 350) && sensor_judge(4, 125, 125) && sensor_judge(5, 125, 125);
+  return a && b;
   }
 
-bool left_judge(){
+
+boolean left_judge(){
   // tell onlyleft from 'left and straight'
   // the sensor values should be {1000, 1000, 1000, 1000, 0, 0}
-  for (unsigned char i = 0;i < NUM_SENSORS; i++){
-    if (i != 4 or 5){
-      unsigned int range = 1000;
-      unsigned int erro = 250;
-      if (sensor_judge(i, range, erro) == false) {
-        return false;
-        }
-      }
-     else{
-      unsigned int range = 0;
-      unsigned int erro = 250;
-      if (sensor_judge(i, range, erro) == false){
-        return false;
-        }
-      }
-      // there's no false, then return true
-       return true;
-     }
+  for (unsigned int i = 0;i < NUM_SENSORS; i++){
+    Serial.print(i);
+    Serial.print(' ');
+    Serial.print(sensorValues[i]);
+    Serial.print('\t'); 
+  }
+  bool a = sensor_judge(0, 650, 350) && sensor_judge(1, 650, 350) && sensor_judge(2, 650, 350);
+  bool b = sensor_judge(3, 650, 350) && sensor_judge(4, 125, 125) && sensor_judge(5, 125, 125);
   }
 
 bool right_judge(){
+  for (unsigned int i = 0;i < NUM_SENSORS; i++){
+    Serial.print(i);
+    Serial.print(' ');
+    Serial.print(sensorValues[i]);
+    Serial.print('\t'); 
+  }
   // tell onlylright from 'right and straight'
   // the sensor values should be{0, 0, 1000, 1000, 1000, 1000}
-  for (unsigned char i = 0;i < NUM_SENSORS; i++){
-    if (i != 1 or 2 ){
-      unsigned int range = 10000;
-      unsigned int erro = 250;
-      if (sensor_judge(i, range, erro) == false) {
-        return false;
-        }
-      }
-     else{
-      unsigned int range = 0;
-      unsigned int erro = 250;
-      if (sensor_judge(i, range, erro) == false){
-        return false;
-        }
-      }
-       return true;
-     }
+  bool a = sensor_judge(0, 125, 125) && sensor_judge(1, 125, 125) && sensor_judge(2, 650, 350);
+  bool b = sensor_judge(3, 650, 350) && sensor_judge(4, 350, 650) && sensor_judge(5, 650, 350);
+  return a && b;
   }
 
 bool T_judge(){
   // tell T from 十
   // the sensor values should be all 1000
-  for (unsigned char i = 0;i < NUM_SENSORS; i++){
-    if (i != 1 or 2 ){
-      unsigned int range = 10000;
-      unsigned int erro = 250;
-      if (sensor_judge(i, range, erro) == false) {
-        return false;
-        }
-      }
-     else{
-      unsigned int range = 0;
-      unsigned int erro = 250;
-      if (sensor_judge(i, range, erro) == false){
-        return false;
-        }
-      }
-       return true;
-     }
+  for (unsigned int i = 0;i < NUM_SENSORS; i++){
+    Serial.print(i);
+    Serial.print(' ');
+    Serial.print(sensorValues[i]);
+    Serial.print('\t'); 
+  }
+  bool a = sensor_judge(0, 650, 350) && sensor_judge(1, 650, 350) && sensor_judge(2, 650, 350);
+  bool b = sensor_judge(3, 650, 350) && sensor_judge(4, 650, 350) && sensor_judge(5, 650, 350);
+  return a && b;  
   }
 
 
-bool wall_judge(){
+bool wall_judge(double distance){
   // use ultra_sound to judge if there is a wall in fornt
   // return true if there's a wall in the front  
-    double distance = distanceSensor.measureDistanceCm();   
-    if(distance<20)
-      return true;
+    
+    if(distance<10)
+      return 1;
     else
-      return false;
+      return 0;
      delay(200);
   }
