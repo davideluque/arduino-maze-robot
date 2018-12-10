@@ -6,3 +6,6 @@
 6.LED校准状态指示灯直接连Arduino的pin13
 7.MOtor的pin11左 pin12右
 8.Reflectance sensor的1-6对应Arduino的pin3-8（从左到右是从绿到黑线）
+
+
+现在的问题是PID到底怎么连线才能正确寻线？
