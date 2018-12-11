@@ -6,7 +6,7 @@
 * 面包板一侧的负极一条公共地，正极一条全部是电动机的5v供电；
 * LED校准状态指示灯直接连Arduino的pin13；
 * MOtor的pin11左 pin12右；
-* Reflectance sensor的1-6对应Arduino的pin8-3，保证传感器（小车）的左右和屏幕上的左右是一致的。
+* Reflectance sensor的1-6对应Arduino的pin8-3，**保证传感器（小车）的左右和屏幕上的左右是一致的**。
 
 
 ##  解决PID和landscape不兼容的问题
