@@ -15,6 +15,7 @@ landscape算法基于sensor的1-6， 接Arduino的3-8；
 将两者合并，最简单的办法是更改landscape的判断条件。
 
 车头向前，从左到右：
+
  sensor pin| 6 | 5 | 4 | 3 | 2 | 1
  --- | --- | --- | --- | ---
  Arduino pin| 3 | 4 | 5 | 6 | 7 | 8
