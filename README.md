@@ -1,18 +1,18 @@
 # arduino-maze-robot
-面包板上连线记录！！连好之后勿动，节约每次测试前的时间！！！
-1.传感器的供电全部使用Arduino5v
-2.Motor， graspper lifter的供电直接使用充电宝；
-4.面包板一侧的负极一条公共地，正极一条全部是电动机的5v供电；
-6.LED校准状态指示灯直接连Arduino的pin13
-7.MOtor的pin11左 pin12右
-8.Reflectance sensor的1-6对应Arduino的pin3-8（从左到右是从绿到黑线）
+**面包板上连线记录！！连好之后勿动，节约每次测试前的时间！！！**
+* 传感器的供电全部使用Arduino 5v；
+* Motor， graspper lifter的供电直接使用充电宝；
+* 面包板一侧的负极一条公共地，正极一条全部是电动机的5v供电；
+* LED校准状态指示灯直接连Arduino的pin13；
+* MOtor的pin11左 pin12右；
+* Reflectance sensor的1-6对应Arduino的pin8-3，保证传感器（小车）的左右和屏幕上的左右是一致的。
 
 
 PID算法工作是基于sensor的1-6， 接Arduino的8-3;
 Arduino的3-8一定对应屏幕上的sensorValues0-5;
 
 landscape算法基于sensor的1-6， 接Arduino的3-8；
-将两者合并，最简单的办法是该landscape的判断条件。
+将两者合并，最简单的办法是更改landscape的判断条件。
 
 车头向前，从左到右：
 sensor pin|6| 5| 4| 3| 2| 1
