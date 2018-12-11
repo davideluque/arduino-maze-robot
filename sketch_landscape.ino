@@ -1,5 +1,6 @@
 /*
- 容纳graspping system的控制函数和line following的控制函数
+ 这版基于reflectance sensor的1-6引脚对应Arduino的3-8引脚，测试通过
+ This version is based on reflectance sensor's pin 1-6 coonected to Arduino's digital pin 3-8
  */
 //#include <Servo.h>
 #include <HCSR04.h>
