@@ -22,7 +22,7 @@ landscape算法基于sensor的1-6， 接Arduino的3-8；
 4|5|6
 
 sensorpin|6|5|4|3|2|1
----|---|---|---|---
+---|---|---|---|---|---
 Arduinopin|3|4|5|6|7|8
 sensorValues|0|1|2|3|4|5 
 
