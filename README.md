@@ -8,4 +8,24 @@
 8.Reflectance sensor的1-6对应Arduino的pin3-8（从左到右是从绿到黑线）
 
 
-现在的问题是PID到底怎么连线才能正确寻线？
+PID算法工作是基于sensor的1-6， 接Arduino的8-3;
+Arduino的3-8一定对应屏幕上的sensorValues0-5;
+
+landscape算法基于sensor的1-6， 接Arduino的3-8；
+将两者合并，最简单的办法是该landscape的判断条件。
+
+车头向前，从左到右：
+sensor pin 6 5 4 3 2 1
+Arduino pin 3 4 5 6 7 8
+sensorValues 0 1 2 3 4 5 
+
+eg. 遇到左转弯，左边黑，右边白， 这样空间的左右和sensorvalues的从左到右是对应的
+sensor pin 6 5 4 3 2 1
+           1 1 1 1 0 0
+Arduino pin 3 4 5 6 7 8
+            
+sensorValues 0 1 2 3 4 5 
+
+T不变，左右转要对调即可
+
+
