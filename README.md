@@ -16,22 +16,17 @@ landscape算法基于sensor的1-6， 接Arduino的3-8；
 
 车头向前，从左到右：
 
-
-1|2|3
---|--|--
-4|5|6
-
-sensorpin|6|5|4|3|2|1
+sensor pin|6|5|4|3|2|1
 ---|---|---|---|---|---|---
-Arduinopin|3|4|5|6|7|8
+Arduino pin|3|4|5|6|7|8
 sensorValues|0|1|2|3|4|5 
 
 eg. 遇到左转弯，左边黑，右边白， 这样空间的左右和sensorvalues的从左到右是对应的
-sensor pin 6 5 4 3 2 1
-           1 1 1 1 0 0
-Arduino pin 3 4 5 6 7 8
-            
+
+sensor pin| 6| 5| 4| 3| 2| 1
+--|--|--|--|--|--|--                      
 sensorValues 0 1 2 3 4 5 
+ |1| 1| 1| 1| 0| 0|
 
 T不变，左右转要对调即可
 
