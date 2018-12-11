@@ -10,11 +10,13 @@
 
 
 ##  解决PID和landscape不兼容的问题
-PID算法工作是基于sensor的1-6， 接Arduino的8-3;
-Arduino的3-8一定对应屏幕上的sensorValues0-5;
+ 分析：PID算法工作是基于sensor的1-6， 接Arduino的8-3;
+      Arduino的3-8一定对应屏幕上的sensorValues0-5;
 
-landscape算法基于sensor的1-6， 接Arduino的3-8；
-将两者合并，最简单的办法是更改landscape的判断条件。
+ landscape算法基于sensor的1-6， 接Arduino的3-8；
+ 将两者合并，最简单的办法是更改landscape的判断条件。
+ 你问我为什么不改PID？
+ 因为如果按照landscape的接线，PID不仅error的正负反了，而且sensorvalues的权重也反了，这样Kp和Kd也得调。
 
 **引脚对应情况**
 车头向前，从左到右：
@@ -28,7 +30,7 @@ eg. 遇到左转弯，左边黑，右边白， 这样空间的左右和sensorval
 
 sensor pin| 6| 5| 4| 3| 2| 1
 --|--|--|--|--|--|--                      
-[i]|0| 1| 2| 3| 4| 5 
+i|0| 1| 2| 3| 4| 5 
  sensorValuse[i]|1| 1| 1| 1| 0| 0|
 
 **结论**：所以对landscape修改，T不变，左右转要对调即可。
