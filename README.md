@@ -21,10 +21,10 @@ landscape算法基于sensor的1-6， 接Arduino的3-8；
 --|--|--
 4|5|6
 
- sensor pin| 6 | 5 | 4 | 3 | 2 | 1
- --- | --- | --- | --- | ---
- Arduino pin| 3 | 4 | 5 | 6 | 7 | 8
- sensorValues| 0 | 1 | 2 | 3 | 4 | 5 
+sensorpin|6|5|4|3|2|1
+---|---|---|---|---
+Arduinopin|3|4|5|6|7|8
+sensorValues|0|1|2|3|4|5 
 
 eg. 遇到左转弯，左边黑，右边白， 这样空间的左右和sensorvalues的从左到右是对应的
 sensor pin 6 5 4 3 2 1
