@@ -8,7 +8,7 @@
 #define NUM_SENSORS 6
 
 QTRSensorsRC qtrrc((unsigned char[]) {3, 4, 5, 6, 7, 8},
-                    NUM_SENSORS, 2500, 1);
+                    NUM_SENSORS, 2500);
 unsigned int sensorValues[NUM_SENSORS];
 //unsigned int *calibratedMaximum;
 //unsigned int *calibratedMinimum;
@@ -17,7 +17,7 @@ void setup_linefollowing(){
     //manual_calibration();
     Serial.begin(9600);
     Serial.println("Automatic calibration");
-    automatic_calibration(1000, 8, &qtrrc.calibratedMinimumOn, &qtrrc.calibratedMaximumOn);
+    automatic_calibration(1000, 8, &qtrrc.calibratedMinimumOff, &qtrrc.calibratedMaximumOff);
     return;
 }
 
@@ -26,8 +26,9 @@ void automatic_calibration(unsigned int min_value,
                            unsigned int **calibratedMinimum, 
                            unsigned int **calibratedMaximum){
     int i;
+    unsigned int max_sensor_values[6];
+    unsigned int min_sensor_values[6];
     
-    Serial.println("Alocar memoria");
     // Allocate the arrays if necessary.
     if(*calibratedMaximum == 0){
         *calibratedMaximum = (unsigned int*)malloc(sizeof(unsigned int)*NUM_SENSORS);
@@ -50,9 +51,29 @@ void automatic_calibration(unsigned int min_value,
             return;
 
         for(i=0;i<NUM_SENSORS;i++)
-            (*calibratedMinimum)[i] = 0;
+            (*calibratedMinimum)[i] = 2500;
     }
-    Serial.println("Todo salio bien");
+
+    
+    for(i=0;i<NUM_SENSORS;i++){
+        // set the max we found
+        // Todo: set this to an array of the average
+        // of some readings because between sensor max differs
+        // quite.
+        max_sensor_values[i] = 1025;
+
+        // set the min we found
+        min_sensor_values[i] = 8;
+    }
+
+    // record the min and max calibration values
+    for(i=0;i<NUM_SENSORS;i++)
+    {
+        if(min_sensor_values[i] > (*calibratedMaximum)[i])
+            (*calibratedMaximum)[i] = min_sensor_values[i];
+        if(max_sensor_values[i] < (*calibratedMinimum)[i])
+            (*calibratedMinimum)[i] = max_sensor_values[i];
+    }
 }
 
 void print_sensor_values(int position){
