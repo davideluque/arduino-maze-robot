@@ -10,12 +10,13 @@
 QTRSensorsRC qtrrc((unsigned char[]) {3, 4, 5, 6, 7, 8},
                     NUM_SENSORS, 2500, 1);
 unsigned int sensorValues[NUM_SENSORS];
-unsigned int *calibratedMaximum;
-unsigned int *calibratedMinimum;
+//unsigned int *calibratedMaximum;
+//unsigned int *calibratedMinimum;
 
 void setup_linefollowing(){    
     manual_calibration();
     //automatic_calibration(1000, 0, &calibratedMinimum, &calibratedMaximum);
+    return;
 }
 
 void automatic_calibration(unsigned int min_value, 
@@ -72,7 +73,7 @@ void follow_line(){
 
     int error = position - 2500;
 
-    print_sensor_values(position);
+    //print_sensor_values(position);
 }
 
 void manual_calibration() {
@@ -82,14 +83,17 @@ void manual_calibration() {
   pinMode(13, OUTPUT);
   digitalWrite(13, HIGH);    // turn on Arduino's LED to indicate we are in calibration mode
   //void emittersOn();
+  Serial.begin(9600);
+  Serial.println("Start calibration");
   for (int i = 0; i < 400; i++)  // make the calibration take about 10 seconds
   {
+    //Serial.println("Calibrating");
     qtrrc.calibrate();       // reads all sensors 10 times at 2500 us per read (i.e. ~25 ms per call)
   }
   digitalWrite(13, LOW);     // turn off Arduino's LED to indicate we are through with calibration
 
   // print the calibration minimum values measured when emitters were on
-  Serial.begin(9600);
+  //Serial.begin(9600);
   for (int i = 0; i < NUM_SENSORS; i++){
     Serial.print(qtrrc.calibratedMinimumOn[i]);
     Serial.print(' ');
@@ -102,5 +106,5 @@ void manual_calibration() {
     Serial.print(' ');
   }
   Serial.println();
-  // delay(1000);
+  delay(1000);
 }
