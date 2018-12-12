@@ -8,14 +8,13 @@
 
 Servo left, right;
 
-void init_driving(){
+void setup_driving(){
+    // Attach gripper left and right motor to arduino pins 11 & 12.
+    left.attach(11);
+    right.attach(12);
+
+    // Put gripper and left and right motor in rest mode (not moving)
     left.write(90);
     right.write(90);
     return;
-}
-
-void setup_driving(){
-    left.attach(11);
-    right.attach(12);
-    init_driving();
 }
