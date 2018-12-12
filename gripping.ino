@@ -8,14 +8,13 @@
 
 Servo gripper, lifter;
 
-void init_gripping(){
-  gripper.write(0);
-  lifter.write(180);
-  return;
-}
-
 void setup_gripping(){
+    // Attach gripper and lifter to arduino pins 9 & 10.
     gripper.attach(10);
     lifter.attach(9);
-    init_gripping();
+
+    // Put gripper and lifter in rest mode (not moving)
+    gripper.write(0);
+    lifter.write(180);
+    return;
 }
