@@ -14,10 +14,10 @@ unsigned int sensorValues[NUM_SENSORS];
 //unsigned int *calibratedMinimum;
 
 void setup_linefollowing(){    
-    //manual_calibration();
     Serial.begin(9600);
     Serial.println("Automatic calibration");
-    automatic_calibration(1000, 8, &qtrrc.calibratedMinimumOff, &qtrrc.calibratedMaximumOff);
+    automatic_calibration(8, 1025, &qtrrc.calibratedMinimumOff, &qtrrc.calibratedMaximumOff);
+    manual_calibration();
     return;
 }
 
@@ -60,10 +60,10 @@ void automatic_calibration(unsigned int min_value,
         // Todo: set this to an array of the average
         // of some readings because between sensor max differs
         // quite.
-        max_sensor_values[i] = 1025;
+        max_sensor_values[i] = max_value;
 
         // set the min we found
-        min_sensor_values[i] = 8;
+        min_sensor_values[i] = min_value;
     }
 
     // record the min and max calibration values
@@ -105,24 +105,22 @@ void manual_calibration() {
   pinMode(13, OUTPUT);
   digitalWrite(13, HIGH);    // turn on Arduino's LED to indicate we are in calibration mode
   //void emittersOn();
-  Serial.begin(9600);
-  Serial.println("Start calibration");
+  //Serial.println("Start calibration");
   for (int i = 0; i < 400; i++){
-    qtrrc.calibrate();       // reads all sensors 10 times at 2500 us per read (i.e. ~25 ms per call)
+      qtrrc.calibrate();       // reads all sensors 10 times at 2500 us per read (i.e. ~25 ms per call)
   }
   digitalWrite(13, LOW);     // turn off Arduino's LED to indicate we are through with calibration
 
   // print the calibration minimum values measured when emitters were on
-  //Serial.begin(9600);
   for (int i = 0; i < NUM_SENSORS; i++){
-    Serial.print(qtrrc.calibratedMinimumOn[i]);
+    Serial.print(qtrrc.calibratedMinimumOff[i]);
     Serial.print(' ');
   }
   Serial.println();
 
   // print the calibration maximum values measured when emitters were on
   for (int i = 0; i < NUM_SENSORS; i++){
-    Serial.print(qtrrc.calibratedMaximumOn[i]);
+    Serial.print(qtrrc.calibratedMaximumOff[i]);
     Serial.print(' ');
   }
   Serial.println();
