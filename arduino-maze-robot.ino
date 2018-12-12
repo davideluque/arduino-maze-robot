@@ -3,11 +3,11 @@
 */
 
 void loop(){
-    follow_line();
+    //follow_line();
 }
 
 void setup(){
     setup_linefollowing();
-    setup_driving();
-    setup_gripping();
+    //setup_driving();
+    //setup_gripping();
 }
