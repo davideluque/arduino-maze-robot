@@ -3,7 +3,7 @@
 */
 
 void loop(){
-    //follow_line();
+    follow_line();
 }
 
 void setup(){
