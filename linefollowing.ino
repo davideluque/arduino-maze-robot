@@ -14,8 +14,10 @@ unsigned int sensorValues[NUM_SENSORS];
 //unsigned int *calibratedMinimum;
 
 void setup_linefollowing(){    
-    manual_calibration();
-    //automatic_calibration(1000, 0, &calibratedMinimum, &calibratedMaximum);
+    //manual_calibration();
+    Serial.begin(9600);
+    Serial.println("Automatic calibration");
+    automatic_calibration(1000, 8, &qtrrc.calibratedMinimumOn, &qtrrc.calibratedMaximumOn);
     return;
 }
 
@@ -23,10 +25,9 @@ void automatic_calibration(unsigned int min_value,
                            unsigned int max_value, 
                            unsigned int **calibratedMinimum, 
                            unsigned int **calibratedMaximum){
-    //calibratedMaximum = nullptr;
-    //calibratedMinimum = nullptr;
     int i;
     
+    Serial.println("Alocar memoria");
     // Allocate the arrays if necessary.
     if(*calibratedMaximum == 0){
         *calibratedMaximum = (unsigned int*)malloc(sizeof(unsigned int)*NUM_SENSORS);
@@ -37,9 +38,8 @@ void automatic_calibration(unsigned int min_value,
 
         // Initialize the max and min calibrated values to values that
         // will cause the first reading to update them.
-
         for(i=0;i<NUM_SENSORS;i++)
-            (*calibratedMaximum)[i] = min_value;
+            (*calibratedMaximum)[i] = 0;
     }
     
     if(*calibratedMinimum == 0){
@@ -50,8 +50,9 @@ void automatic_calibration(unsigned int min_value,
             return;
 
         for(i=0;i<NUM_SENSORS;i++)
-            (*calibratedMinimum)[i] = max_value;
+            (*calibratedMinimum)[i] = 0;
     }
+    Serial.println("Todo salio bien");
 }
 
 void print_sensor_values(int position){
@@ -85,9 +86,7 @@ void manual_calibration() {
   //void emittersOn();
   Serial.begin(9600);
   Serial.println("Start calibration");
-  for (int i = 0; i < 400; i++)  // make the calibration take about 10 seconds
-  {
-    //Serial.println("Calibrating");
+  for (int i = 0; i < 400; i++){
     qtrrc.calibrate();       // reads all sensors 10 times at 2500 us per read (i.e. ~25 ms per call)
   }
   digitalWrite(13, LOW);     // turn off Arduino's LED to indicate we are through with calibration
