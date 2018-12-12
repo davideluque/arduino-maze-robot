@@ -17,7 +17,7 @@ void setup_linefollowing(){
     Serial.begin(9600);
     Serial.println("Automatic calibration");
     automatic_calibration(8, 1025, &qtrrc.calibratedMinimumOff, &qtrrc.calibratedMaximumOff);
-    manual_calibration();
+    //manual_calibration();
     return;
 }
 
