@@ -4,7 +4,6 @@
 
 void loop(){
     follow_line();
-    //move();
 }
 
 void setup(){
