@@ -6,10 +6,17 @@
 #include <QTRSensors.h>
 
 #define NUM_SENSORS 6
+#define KP 0.2
+#define KD 0.5
+
+#define left_motor_default_speed 180  //normal speed of the left_motor
+#define right_motor_default_speed 180  //normal speed of the right_motor
 
 QTRSensorsRC qtrrc((unsigned char[]) {3, 4, 5, 6, 7, 8},
                     NUM_SENSORS, 2500, 1);
 unsigned int sensorValues[NUM_SENSORS];
+
+int lastError = 0;
 
 void setup_linefollowing(){    
     Serial.begin(9600);
@@ -95,6 +102,15 @@ void follow_line(){
     int error = position - 2500;
 
     print_sensor_values(position);
+
+    int motorSpeed = KP * error + KD * (error - lastError);
+    
+    lastError = error;
+
+    int leftMotorSpeed = 180 - left_motor_default_speed - motorSpeed;
+    int rightMotorSpeed = right_motor_default_speed - motorSpeed; // closer to 180, speed up, so slow down here
+
+    set_motors(leftMotorSpeed, rightMotorSpeed);
 }
 
 void manual_calibration() {
