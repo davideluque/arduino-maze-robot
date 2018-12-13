@@ -8,13 +8,13 @@
 #define NUM_SENSORS 6
 
 QTRSensorsRC qtrrc((unsigned char[]) {3, 4, 5, 6, 7, 8},
-                    NUM_SENSORS, 2500);
+                    NUM_SENSORS, 2500, 1);
 unsigned int sensorValues[NUM_SENSORS];
 
 void setup_linefollowing(){    
     Serial.begin(9600);
     Serial.println("Automatic calibration");
-    automatic_calibration(8, 1025, &qtrrc.calibratedMinimumOff, &qtrrc.calibratedMaximumOff);
+    automatic_calibration(1025, 8, &qtrrc.calibratedMinimumOn, &qtrrc.calibratedMaximumOn);
     print_calibrated_values();
     //manual_calibration();
     return;
@@ -117,14 +117,14 @@ void manual_calibration() {
 void print_calibrated_values(){
     // print the calibration minimum values measured when emitters were on
     for (int i = 0; i < NUM_SENSORS; i++){
-        Serial.print(qtrrc.calibratedMinimumOff[i]);
+        Serial.print(qtrrc.calibratedMinimumOn[i]);
         Serial.print(' ');
     }
     Serial.println();
 
     // print the calibration maximum values measured when emitters were on
     for (int i = 0; i < NUM_SENSORS; i++){
-        Serial.print(qtrrc.calibratedMaximumOff[i]);
+        Serial.print(qtrrc.calibratedMaximumOn[i]);
         Serial.print(' ');
     }
     Serial.println();
