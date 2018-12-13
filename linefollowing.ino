@@ -10,13 +10,12 @@
 QTRSensorsRC qtrrc((unsigned char[]) {3, 4, 5, 6, 7, 8},
                     NUM_SENSORS, 2500);
 unsigned int sensorValues[NUM_SENSORS];
-//unsigned int *calibratedMaximum;
-//unsigned int *calibratedMinimum;
 
 void setup_linefollowing(){    
     Serial.begin(9600);
     Serial.println("Automatic calibration");
     automatic_calibration(8, 1025, &qtrrc.calibratedMinimumOff, &qtrrc.calibratedMaximumOff);
+    print_calibrated_values();
     //manual_calibration();
     return;
 }
@@ -95,7 +94,7 @@ void follow_line(){
 
     int error = position - 2500;
 
-    //print_sensor_values(position);
+    print_sensor_values(position);
 }
 
 void manual_calibration() {
@@ -110,19 +109,23 @@ void manual_calibration() {
       qtrrc.calibrate();       // reads all sensors 10 times at 2500 us per read (i.e. ~25 ms per call)
   }
   digitalWrite(13, LOW);     // turn off Arduino's LED to indicate we are through with calibration
-
-  // print the calibration minimum values measured when emitters were on
-  for (int i = 0; i < NUM_SENSORS; i++){
-    Serial.print(qtrrc.calibratedMinimumOff[i]);
-    Serial.print(' ');
-  }
-  Serial.println();
-
-  // print the calibration maximum values measured when emitters were on
-  for (int i = 0; i < NUM_SENSORS; i++){
-    Serial.print(qtrrc.calibratedMaximumOff[i]);
-    Serial.print(' ');
-  }
-  Serial.println();
+  
+  print_calibrated_values();
   delay(1000);
+}
+
+void print_calibrated_values(){
+    // print the calibration minimum values measured when emitters were on
+    for (int i = 0; i < NUM_SENSORS; i++){
+        Serial.print(qtrrc.calibratedMinimumOff[i]);
+        Serial.print(' ');
+    }
+    Serial.println();
+
+    // print the calibration maximum values measured when emitters were on
+    for (int i = 0; i < NUM_SENSORS; i++){
+        Serial.print(qtrrc.calibratedMaximumOff[i]);
+        Serial.print(' ');
+    }
+    Serial.println();
 }
