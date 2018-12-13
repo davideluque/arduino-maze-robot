@@ -22,7 +22,8 @@ double distance;
 #define NUM_SENSORS  6        //number of sensors used
 #define TIMEOUT 2500          //waits for 2500 us for sensor outputs to go low
 #define EMITTER_PIN 8         //emitterPin is the Arduino digital pin that controls whether the IR LEDs are on or off. Emitter is controlled by digital pin 2
-      
+#define RangeB 625
+#define ErrorB 375     
 
 // sensors are connected to digital pins 2 to 7
 QTRSensorsRC qtrrc((unsigned char[]) { 3, 4, 5, 6, 7, 8},  // 3号传感器对应最左边or最右边要测清楚？
@@ -32,8 +33,10 @@ unsigned int sensorValues[NUM_SENSORS];
 int error = 0;
 int lastError = 0;
 int type = 0;
+int i=0;
 
 void setup() {
+  
   Serial.begin(9600); // 波特率
   left_motor.attach(left_motorPin);
   right_motor.attach(right_motorPin);
@@ -45,14 +48,16 @@ void setup() {
 
 
 void loop() {
+  i++;
   distance = distanceSensor.measureDistanceCm();   
  
   
   //1, 2, 3, 4, 5, 6 corresonds to leftonly, rightonly, T, 十, leftandstraight,
   //rightandstraight
   int position = qtrrc.readLine(sensorValues);
-  Serial.print(landscape());
-  Serial.print('\n');
+  
+  if(i>200){Serial.print(landscape());
+  Serial.print('\n');}
   /*
   switch(type){
     case 1:
@@ -154,6 +159,7 @@ int landscape(){
     // 实际中需要往前跑一段再判断
     
     if(left_judge()){
+      i=0;
       Serial.print(666);
       Serial.print(' ');
       if (wall_judge()) return 1;  // use true instead of wall_judge()
@@ -161,6 +167,7 @@ int landscape(){
       } 
       
     if(right_judge()) {
+       i=0;
       Serial.print(777);
       Serial.print(' ');
       if (wall_judge()) return 2;
@@ -168,6 +175,7 @@ int landscape(){
       }
 
     if(T_judge()){
+       i=0;
       Serial.print(888);
       Serial.print(' ');
       if (wall_judge()) return 3;
@@ -189,60 +197,60 @@ bool left_judge(){
   // the sensor values should be {1000, 1000, 1000, 1000, 0, 0}， 1号传感器对应的sensorValues[5]
   Serial.print(12);
   Serial.print(' ');
-  if ((sensorValues[0]!= 0) && (sensorValues[1] != 0) && (sensorValues[2] != 0) && (sensorValues[3] != 0)\
+ /* if ((sensorValues[0]!= 0) && (sensorValues[1] != 0) && (sensorValues[2] != 0) && (sensorValues[3] != 0)\
   && (sensorValues[4] == 0) && (sensorValues[5] == 0)) return true;
   else if ((sensorValues[0] != 0) && (sensorValues[1] != 0) && (sensorValues[2] != 0) && (sensorValues[3] == 0)\
   && (sensorValues[4] == 0) && (sensorValues[5] == 0)) return true;
   else if ((sensorValues[0] != 0) && (sensorValues[1] != 0) && (sensorValues[2] != 0) && (sensorValues[3] != 0)\
   && (sensorValues[4] != 0) && (sensorValues[5] == 0)) return true;
-  else return false;/*
-  bool a = sensor_judge(0, 650, 350) && sensor_judge(1, 650, 350) && sensor_judge(2, 650, 350);
-  bool b = sensor_judge(3, 650, 350) && sensor_judge(4, 125, 125) && sensor_judge(5, 125, 125);
+  else return false;*/
+  bool a = sensor_judge(0, RangeB, ErrorB) && sensor_judge(1, RangeB, ErrorB) && sensor_judge(2, RangeB, ErrorB);
+  bool b = sensor_judge(3, RangeB, ErrorB) && sensor_judge(4, 125, 125) && sensor_judge(5, 125, 125);
   
-  bool c = sensor_judge(0, 650, 350) && sensor_judge(1, 650, 350) && sensor_judge(2, 650, 350);
+  bool c = sensor_judge(0, RangeB, ErrorB) && sensor_judge(1, RangeB, ErrorB) && sensor_judge(2, RangeB, ErrorB);
   bool d = sensor_judge(3, 125, 125) && sensor_judge(4, 125, 125) && sensor_judge(5, 125, 125);
 
-  bool e = sensor_judge(0, 650, 350) && sensor_judge(1, 650, 350) && sensor_judge(2, 650, 350);
-  bool f = sensor_judge(3, 650, 350) && sensor_judge(4, 650, 350) && sensor_judge(5, 125, 125);
+  bool e = sensor_judge(0, RangeB, ErrorB) && sensor_judge(1,RangeB, ErrorB) && sensor_judge(2, RangeB, ErrorB);
+  bool f = sensor_judge(3, RangeB, ErrorB) && sensor_judge(4, RangeB, ErrorB) && sensor_judge(5, 125, 125);
   //按正常接线顺序，sensor_judge的顺序是0-5
-  return (a && b) || (c && d) || (e && f);*/
+  return (a && b) || (c && d) || (e && f);
   }
 
 bool right_judge(){
   // tell onlylright from 'right and straight'
   // the sensor values should be{0, 0, 1000, 1000, 1000, 1000}
   Serial.print(34);
-  Serial.print(' ');
+  Serial.print(' ');/*
   if ((sensorValues[0] == 0) && (sensorValues[1] == 0) && (sensorValues[2] != 0) && (sensorValues[3] != 0)\
   && (sensorValues[4] != 0) && (sensorValues[5] != 0)) return true;
   else if ((sensorValues[0] == 0) && (sensorValues[1] == 0) && (sensorValues[2] == 0) && (sensorValues[3] != 0)\
   && (sensorValues[4] != 0) && (sensorValues[5] != 0)) return true;
   else if ((sensorValues[0] == 0) && (sensorValues[1] != 0) && (sensorValues[2] != 0) && (sensorValues[3] != 0)\
   && (sensorValues[4] != 0) && (sensorValues[5] != 0)) return true;
- else return false;/*
+ else return false;*/
   
-  bool a = sensor_judge(0, 125, 125) && sensor_judge(1, 125, 125) && sensor_judge(2, 650, 350);
-  bool b = sensor_judge(3, 650, 350) && sensor_judge(4, 350, 650) && sensor_judge(5, 650, 350);
+  bool a = sensor_judge(0, 125, 125) && sensor_judge(1, 125, 125) && sensor_judge(2, RangeB, ErrorB);
+  bool b = sensor_judge(3, RangeB, ErrorB) && sensor_judge(4, RangeB, ErrorB) && sensor_judge(5,RangeB, ErrorB);
 
   bool c = sensor_judge(0, 125, 125) && sensor_judge(1, 125, 125) && sensor_judge(2, 125, 125);
-  bool d = sensor_judge(3, 650, 350) && sensor_judge(4, 650, 350) && sensor_judge(5, 650, 350);
+  bool d = sensor_judge(3, RangeB, ErrorB) && sensor_judge(4, RangeB, ErrorB) && sensor_judge(5, RangeB, ErrorB);
 
-  bool e = sensor_judge(0, 125, 125) && sensor_judge(1, 650, 350) && sensor_judge(2, 650, 350);
-  bool f = sensor_judge(3, 650, 350) && sensor_judge(4, 650, 350) && sensor_judge(5, 650, 350);
-   return (a && b) || (c && d) || (e && f);*/
+  bool e = sensor_judge(0, 125, 125) && sensor_judge(1, RangeB, ErrorB) && sensor_judge(2, RangeB, ErrorB);
+  bool f = sensor_judge(3, RangeB, ErrorB) && sensor_judge(4, RangeB, ErrorB) && sensor_judge(5, RangeB, ErrorB);
+   return (a && b) || (c && d) || (e && f);
   }
 
 bool T_judge(){
   // tell T from 十
   // the sensor values should be all 1000
   Serial.print(56);
-  Serial.print(' ');
+  Serial.print(' ');/*
  if ((sensorValues[0] != 0) && (sensorValues[0] != 0) && (sensorValues[0] != 0) && (sensorValues[0] != 0)\
   && (sensorValues[0] != 0) && (sensorValues[0] != 0)) return true;
-  else return false;/*
-  bool a = sensor_judge(0, 650, 350) && sensor_judge(1, 650, 350) && sensor_judge(2, 650, 350);
-  bool b = sensor_judge(3, 650, 350) && sensor_judge(4, 650, 350) && sensor_judge(5, 650, 350);
-  return a && b; */
+  else return false;*/
+  bool a = sensor_judge(0, RangeB, ErrorB) && sensor_judge(1, RangeB, ErrorB) && sensor_judge(2, RangeB, ErrorB);
+  bool b = sensor_judge(3, RangeB, ErrorB) && sensor_judge(4, RangeB, ErrorB) && sensor_judge(5, RangeB, ErrorB);
+  return a && b; 
   }
 
 
@@ -250,7 +258,7 @@ bool wall_judge(){
   // use ultra_sound to judge if there is a wall in fornt
   // return true if there's a wall in the front  
 
-    if((distance>10) && (distance<20)){
+    if((distance>10) && (distance<25)){
       return true;
     }
       
