@@ -12,8 +12,8 @@ const int right_motorPin = 12;
 UltraSonicDistanceSensor distanceSensor(TrigPin, EchoPin);
 double distance;
 
-#define KP 0.1 //experiment to determine this, start by something sm  all that just makes your bot follow the line at a slow speed
-#define KD 0.7 //experiment to determine this, slowly increase the speeds and adjust this value. ( Note: Kp < Kd) 
+#define KP 0.2 //experiment to determine this, start by something sm  all that just makes your bot follow the line at a slow speed
+#define KD 0.5 //experiment to determine this, slowly increase the speeds and adjust this value. ( Note: Kp < Kd) 
 #define left_motor_default_speed 180  //normal speed of the left_motor
 #define right_motor_default_speed 180  //normal speed of the right_motor
 #define left_motor_max_speed 180 //max. speed of the left_motor
@@ -35,8 +35,7 @@ int lastError = 0;
 int type = 0;
 int i=0;
 
-void setup() {
-  
+void setup() {  
   Serial.begin(9600); // 波特率
   left_motor.attach(left_motorPin);
   right_motor.attach(right_motorPin);
@@ -50,44 +49,14 @@ void setup() {
 void loop() {
   i++;
   distance = distanceSensor.measureDistanceCm();   
- 
-  
   //1, 2, 3, 4, 5, 6 corresonds to leftonly, rightonly, T, 十, leftandstraight,
   //rightandstraight
-  int position = qtrrc.readLine(sensorValues);
-  
-  if(i>200){Serial.print(landscape());
-  Serial.print('\n');}
-  /*
-  switch(type){
-    case 1:
-    {
-      test_blink(1);
-      break;
-      } 
-    case 2:{
-      test_blink(2);
-      break;
-      }
-    case 3: {
-      test_blink(3);
-      break;
-      }
-    case 4:{
-      test_blink(4);
-      break;
-      }
-    case 5:{
-      test_blink(5);
-      break;
-      }
-    case 6:{
-      test_blink(6);
-      break;
-      }
-    case 7:  break; // 不考虑 U turn的话，应该是直线，交给PID
-    }
- */
+  int position = qtrrc.readLine(sensorValues);  
+  if(i>200){
+    Serial.print(landscape());
+    Serial.print('\n');
+  }
+
  // dead end should be checked if there's a wall or line removed
  //check_dead_end();
  
@@ -117,7 +86,6 @@ void set_motors(int left_motorspeed, int right_motorspeed) {
 void manual_calibration() {
   //calibrate for sometime by sliding the sensors across the line,
   //or you may use auto-calibration instead
-
   pinMode(13, OUTPUT);
   digitalWrite(13, HIGH);    // turn on Arduino's LED to indicate we are in calibration mode
   //void emittersOn();
@@ -142,47 +110,41 @@ void manual_calibration() {
 
 
 int landscape(){
-  // first make sure the car is online, then judge the landscape
   // use ultra sound sensors to distinguish 'only right' and 'right or straight'
   // also for 'T' and '十'
-  //1, 2, 3, 4, 5, 6 corresonds to leftonly, rightonly, T, 十, leftandstraight,
-  //rightandstraight 
-  //int position = qtrrc.readLine(sensorValues);
-  // for debugging
-   for (unsigned int i = 0;i < NUM_SENSORS; i++){
+  //1, 2, 3, 4, 5, 6, 7, 8, 9 corresonds to leftonly, rightonly, T, 十, leftandstraight,
+  //rightandstraight, straight, deadend, removedline, straight     
+  for (unsigned int i = 0;i < NUM_SENSORS; i++){
     Serial.print(i);
     Serial.print(' ');
     Serial.print(sensorValues[i]);
     Serial.print('\t'); 
   }
-  
-    // 实际中需要往前跑一段再判断
-    
     if(left_judge()){
       i=0;
-      Serial.print(666);
-      Serial.print(' ');
       if (wall_judge()) return 1;  // use true instead of wall_judge()
       else return 5;
       } 
       
     if(right_judge()) {
        i=0;
-      Serial.print(777);
-      Serial.print(' ');
       if (wall_judge()) return 2;
       else return 6;
       }
 
     if(T_judge()){
        i=0;
-      Serial.print(888);
-      Serial.print(' ');
       if (wall_judge()) return 3;
       else return 4;
+      }   
+
+    if(dead_end_judge()) {
+      i = 0;
+      if (wall_judge()) return 7;
+      else return 8;
       }
-      
-    return 7; // 用于调试
+          
+    return 9; 
 }
 
 
@@ -195,15 +157,6 @@ bool sensor_judge(unsigned int num, int range, int error){
 bool left_judge(){
   // tell onlyleft from 'left and straight'
   // the sensor values should be {1000, 1000, 1000, 1000, 0, 0}， 1号传感器对应的sensorValues[5]
-  Serial.print(12);
-  Serial.print(' ');
- /* if ((sensorValues[0]!= 0) && (sensorValues[1] != 0) && (sensorValues[2] != 0) && (sensorValues[3] != 0)\
-  && (sensorValues[4] == 0) && (sensorValues[5] == 0)) return true;
-  else if ((sensorValues[0] != 0) && (sensorValues[1] != 0) && (sensorValues[2] != 0) && (sensorValues[3] == 0)\
-  && (sensorValues[4] == 0) && (sensorValues[5] == 0)) return true;
-  else if ((sensorValues[0] != 0) && (sensorValues[1] != 0) && (sensorValues[2] != 0) && (sensorValues[3] != 0)\
-  && (sensorValues[4] != 0) && (sensorValues[5] == 0)) return true;
-  else return false;*/
   bool a = sensor_judge(0, RangeB, ErrorB) && sensor_judge(1, RangeB, ErrorB) && sensor_judge(2, RangeB, ErrorB);
   bool b = sensor_judge(3, RangeB, ErrorB) && sensor_judge(4, 125, 125) && sensor_judge(5, 125, 125);
   
@@ -218,17 +171,7 @@ bool left_judge(){
 
 bool right_judge(){
   // tell onlylright from 'right and straight'
-  // the sensor values should be{0, 0, 1000, 1000, 1000, 1000}
-  Serial.print(34);
-  Serial.print(' ');/*
-  if ((sensorValues[0] == 0) && (sensorValues[1] == 0) && (sensorValues[2] != 0) && (sensorValues[3] != 0)\
-  && (sensorValues[4] != 0) && (sensorValues[5] != 0)) return true;
-  else if ((sensorValues[0] == 0) && (sensorValues[1] == 0) && (sensorValues[2] == 0) && (sensorValues[3] != 0)\
-  && (sensorValues[4] != 0) && (sensorValues[5] != 0)) return true;
-  else if ((sensorValues[0] == 0) && (sensorValues[1] != 0) && (sensorValues[2] != 0) && (sensorValues[3] != 0)\
-  && (sensorValues[4] != 0) && (sensorValues[5] != 0)) return true;
- else return false;*/
-  
+  // the sensor values should be{0, 0, 1000, 1000, 1000, 1000}  
   bool a = sensor_judge(0, 125, 125) && sensor_judge(1, 125, 125) && sensor_judge(2, RangeB, ErrorB);
   bool b = sensor_judge(3, RangeB, ErrorB) && sensor_judge(4, RangeB, ErrorB) && sensor_judge(5,RangeB, ErrorB);
 
@@ -243,11 +186,6 @@ bool right_judge(){
 bool T_judge(){
   // tell T from 十
   // the sensor values should be all 1000
-  Serial.print(56);
-  Serial.print(' ');/*
- if ((sensorValues[0] != 0) && (sensorValues[0] != 0) && (sensorValues[0] != 0) && (sensorValues[0] != 0)\
-  && (sensorValues[0] != 0) && (sensorValues[0] != 0)) return true;
-  else return false;*/
   bool a = sensor_judge(0, RangeB, ErrorB) && sensor_judge(1, RangeB, ErrorB) && sensor_judge(2, RangeB, ErrorB);
   bool b = sensor_judge(3, RangeB, ErrorB) && sensor_judge(4, RangeB, ErrorB) && sensor_judge(5, RangeB, ErrorB);
   return a && b; 
@@ -257,18 +195,22 @@ bool T_judge(){
 bool wall_judge(){
   // use ultra_sound to judge if there is a wall in fornt
   // return true if there's a wall in the front  
-
-    if((distance>10) && (distance<25)){
+  if((distance>10) && (distance<25)){
       return true;
-    }
-      
+    }    
     else{
       return false;
-      }
-           
+      }           
   }
 
-
+bool dead_end_judge(){
+  // 全在0附近的区间里
+  bool a = sensor_judge(0, 125, 125) && sensor_judge(1, 125, 125) && sensor_judge(2, 125, 125);
+  bool b = sensor_judge(3, 125, 125) && sensor_judge(4, 125, 125) && sensor_judge(5, 125, 125);  
+  return a && b; 
+}
+  // 把车提起来会返回4，因为全为1000， 且没有墙
+/*
 void right_turn(){
   left_motor.write(0);  //左轮正转
   right_motor.write(0);  //右轮反转
@@ -300,7 +242,7 @@ void test_blink(int number){
       return;
   }
 
-/*
+
 bool check_reflectance_dead_end(int position){
   int lower_bound = 2300;
   int higher_bound = 2700;
