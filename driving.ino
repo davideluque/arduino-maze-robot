@@ -32,27 +32,30 @@ void set_motors(int left_motorspeed, int right_motorspeed) {
 void go_straight(){
     left_motor.write(0);  //左轮正转
     right_motor.write(180);
-    delay(1000);
+    delay(250);
     return;
 }
 
 void right_turn(){
-    left_motor.write(0);  //左轮正转
-    right_motor.write(0);  //右轮反转
-    delay(1075);
-    return;
+  Serial.println("I am going to turn right");
+  left_motor.write(0);  //左轮正转
+  right_motor.write(0);  //右轮反转
+  Serial.println("I am going to delay while I do the turn");
+  delay(800);
+  Serial.println("Turn should have finished");
+  return;
 }
 
 void left_turn(){
     left_motor.write(180);  //左轮正转
     right_motor.write(180);  //右轮反转
-    delay(1075);
+    delay(800);
     return;
 }
 
 void u_turn(){
     left_motor.write(0);  //左轮正转
     right_motor.write(0);  //右轮反转
-    delay(2150);
+    delay(1600);
     return;
 }

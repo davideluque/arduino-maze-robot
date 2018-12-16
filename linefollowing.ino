@@ -20,7 +20,8 @@ QTRSensorsRC qtrrc((unsigned char[]) {3, 4, 5, 6, 7, 8},
                     NUM_SENSORS, 2500, 1);
 unsigned int sensorValues[NUM_SENSORS];
 
-UltraSonicDistanceSensor distanceSensor(9, 10);
+// echoPin = 2, triggerPin = 13
+UltraSonicDistanceSensor distanceSensor(13, 2);
 
 int lastError = 0;
 
@@ -101,7 +102,6 @@ void print_sensor_values(int position){
 }
 
 void follow_line(){
-    distance = distanceSensor.measureDistanceCm();
     int position = qtrrc.readLine(sensorValues);
 
     int error = position - 2500;
@@ -151,7 +151,13 @@ void print_calibrated_values(){
     Serial.println();
 }
 
-int landscape(){
+unsigned int landscape(){
+    for (unsigned int i = 0;i < NUM_SENSORS; i++){
+    Serial.print(i);
+    Serial.print(' ');
+    Serial.print(sensorValues[i]);
+    Serial.print('\t'); 
+  }
     if(left_judge()){
         k=0;
         if (wall_judge()){

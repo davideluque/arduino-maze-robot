@@ -11,17 +11,19 @@ double distance = 0.0;
 
 void setup_gripping(){
     // Attach gripper and lifter to arduino pins 9 & 10.
-    gripper.attach(10);
-    lifter.attach(9);
+    gripper.attach(9);
+    lifter.attach(10);
 
     // Put gripper and lifter in rest mode (not moving)
-    gripper.write(0);
-    lifter.write(180);
+    gripper.write(88);
+    delay(2000);
+    lifter.write(0);
+    delay(2000);
     return;
 }
 
 bool check_for_cylinder(){
-    if(distance<5&&distance>2){ // cylinder is detected
+    if(distance<4&&distance>2){ // cylinder is detected
         set_motors(90,90); // stop the car
         return true;
     }
@@ -29,13 +31,14 @@ bool check_for_cylinder(){
 }
 
 void grasp_cylinder(){
-    //gripper.write(38);
-    delay(2000);
-    // Not lifting for now.
-    //lifter.write(120);
-    //delay(2000);
-    //gripper.write(5);
-    //delay(2000);
-    //lifter.write(0);
-    //delay(2000);//grasp and lift the cylinder;
+  gripper.write(60);
+  delay(1000);   
+  lifter.write(115);
+  delay(2000);
+  gripper.write(130);
+  delay(150);
+  gripper.write(91);
+  delay(2000);
+  lifter.write(0);
+  delay(2000);
 }
