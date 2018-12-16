@@ -21,16 +21,13 @@ QTRSensorsRC qtrrc((unsigned char[]) {3, 4, 5, 6, 7, 8},
 unsigned int sensorValues[NUM_SENSORS];
 
 UltraSonicDistanceSensor distanceSensor(9, 10);
-double distance = 0.0;
 
 int lastError = 0;
 
 void setup_linefollowing(){    
-    Serial.begin(9600);
-    Serial.println("Automatic calibration");
-    automatic_calibration(1025, 8, &qtrrc.calibratedMinimumOn, &qtrrc.calibratedMaximumOn);
-    print_calibrated_values();
-    //manual_calibration();
+    //automatic_calibration(1025, 8, &qtrrc.calibratedMinimumOn, &qtrrc.calibratedMaximumOn);    
+    manual_calibration();
+    //print_calibrated_values();
     return;
 }
 
@@ -108,7 +105,7 @@ void follow_line(){
 
     int error = position - 2500;
 
-    print_sensor_values(position);
+    //print_sensor_values(position);
 
     int motorSpeed = KP * error + KD * (error - lastError);
     
@@ -154,9 +151,8 @@ void print_calibrated_values(){
 }
 
 int landscape(){
-    int i;
     if(left_judge()){
-        i=0;
+        k=0;
         if (wall_judge()){
             return 1;
         }
@@ -164,7 +160,7 @@ int landscape(){
     }
     
     if(right_judge()){
-        i=0;
+        k=0;
         if (wall_judge()){
             return 3;
         }
@@ -172,7 +168,7 @@ int landscape(){
       }
 
     if(T_judge()){
-        i=0;
+        k=0;
         if (wall_judge()){
             return 5;
         }
@@ -180,7 +176,7 @@ int landscape(){
     }   
 
     if(dead_end_judge()){
-        i = 0;
+        k=0;
         if (wall_judge()){
             return 7;
         }

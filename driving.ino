@@ -25,14 +25,34 @@ void setup_driving(){
 void set_motors(int left_motorspeed, int right_motorspeed) {
   if (180 - left_motorspeed > left_motor_max_speed ) left_motorspeed = 180 - left_motor_max_speed;  // if speed is negative, use 0 instead
   if (right_motorspeed > right_motor_max_speed ) right_motorspeed = right_motor_max_speed;
-  if ( left_motorspeed > 90) left_motorspeed = 90;   // avoid spinning backward
-  if (right_motorspeed < 90) right_motorspeed = 90;
-  //left_motorspeed = 180 - left_motorspeed;
   left_motor.write(left_motorspeed);
   right_motor.write(right_motorspeed);
 }
 
-void move(){
-    left_motor.write(90);
-    right_motor.write(90);
+void go_straight(){
+    left_motor.write(0);  //左轮正转
+    right_motor.write(180);
+    delay(1000);
+    return;
+}
+
+void right_turn(){
+    left_motor.write(0);  //左轮正转
+    right_motor.write(0);  //右轮反转
+    delay(1075);
+    return;
+}
+
+void left_turn(){
+    left_motor.write(180);  //左轮正转
+    right_motor.write(180);  //右轮反转
+    delay(1075);
+    return;
+}
+
+void u_turn(){
+    left_motor.write(0);  //左轮正转
+    right_motor.write(0);  //右轮反转
+    delay(2150);
+    return;
 }
