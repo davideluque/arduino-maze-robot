@@ -4,6 +4,7 @@
 */
 
 #include <QTRSensors.h>
+#include <HCSR04.h>
 
 #define NUM_SENSORS 6
 #define KP 0.2
@@ -12,9 +13,15 @@
 #define left_motor_default_speed 180  //normal speed of the left_motor
 #define right_motor_default_speed 180  //normal speed of the right_motor
 
+#define RangeB 625
+#define ErrorB 375
+
 QTRSensorsRC qtrrc((unsigned char[]) {3, 4, 5, 6, 7, 8},
                     NUM_SENSORS, 2500, 1);
 unsigned int sensorValues[NUM_SENSORS];
+
+UltraSonicDistanceSensor distanceSensor(9, 10);
+double distance = 0.0;
 
 int lastError = 0;
 
@@ -144,4 +151,102 @@ void print_calibrated_values(){
         Serial.print(' ');
     }
     Serial.println();
+}
+
+int landscape(){
+    int i;
+    if(left_judge()){
+        i=0;
+        if (wall_judge()){
+            return 1;
+        }
+        return 2;
+    }
+    
+    if(right_judge()){
+        i=0;
+        if (wall_judge()){
+            return 3;
+        }
+        return 4;
+      }
+
+    if(T_judge()){
+        i=0;
+        if (wall_judge()){
+            return 5;
+        }
+        return 6;
+    }   
+
+    if(dead_end_judge()){
+        i = 0;
+        if (wall_judge()){
+            return 7;
+        }
+        return 8;
+      }
+          
+    return 9; 
+}
+
+bool sensor_judge(unsigned int num, int range, int error){
+     int a = sensorValues[num];
+     if ((a <= range + error) && (a >= range - error)){
+         return true;
+     }
+     return false; 
+}
+
+bool left_judge(){
+  // tell onlyleft from 'left and straight'
+  // the sensor values should be {1000, 1000, 1000, 1000, 0, 0}， 1号传感器对应的sensorValues[5]
+  bool a = sensor_judge(0, RangeB, ErrorB) && sensor_judge(1, RangeB, ErrorB) && sensor_judge(2, RangeB, ErrorB);
+  bool b = sensor_judge(3, RangeB, ErrorB) && sensor_judge(4, 125, 125) && sensor_judge(5, 125, 125);
+  
+  bool c = sensor_judge(0, RangeB, ErrorB) && sensor_judge(1, RangeB, ErrorB) && sensor_judge(2, RangeB, ErrorB);
+  bool d = sensor_judge(3, 125, 125) && sensor_judge(4, 125, 125) && sensor_judge(5, 125, 125);
+
+  bool e = sensor_judge(0, RangeB, ErrorB) && sensor_judge(1,RangeB, ErrorB) && sensor_judge(2, RangeB, ErrorB);
+  bool f = sensor_judge(3, RangeB, ErrorB) && sensor_judge(4, RangeB, ErrorB) && sensor_judge(5, 125, 125);
+  //按正常接线顺序，sensor_judge的顺序是0-5
+  return (a && b) || (c && d) || (e && f);
+}
+
+bool right_judge(){
+  // tell only  right from 'right and straight'
+  // the sensor values should be{0, 0, 1000, 1000, 1000, 1000}  
+  bool a = sensor_judge(0, 125, 125) && sensor_judge(1, 125, 125) && sensor_judge(2, RangeB, ErrorB);
+  bool b = sensor_judge(3, RangeB, ErrorB) && sensor_judge(4, RangeB, ErrorB) && sensor_judge(5,RangeB, ErrorB);
+
+  bool c = sensor_judge(0, 125, 125) && sensor_judge(1, 125, 125) && sensor_judge(2, 125, 125);
+  bool d = sensor_judge(3, RangeB, ErrorB) && sensor_judge(4, RangeB, ErrorB) && sensor_judge(5, RangeB, ErrorB);
+
+  bool e = sensor_judge(0, 125, 125) && sensor_judge(1, RangeB, ErrorB) && sensor_judge(2, RangeB, ErrorB);
+  bool f = sensor_judge(3, RangeB, ErrorB) && sensor_judge(4, RangeB, ErrorB) && sensor_judge(5, RangeB, ErrorB);
+   return (a && b) || (c && d) || (e && f);
+}
+
+bool T_judge(){
+  // tell T from 十
+  // the sensor values should be all 1000
+  bool a = sensor_judge(0, RangeB, ErrorB) && sensor_judge(1, RangeB, ErrorB) && sensor_judge(2, RangeB, ErrorB);
+  bool b = sensor_judge(3, RangeB, ErrorB) && sensor_judge(4, RangeB, ErrorB) && sensor_judge(5, RangeB, ErrorB);
+  return a && b; 
+}
+
+bool wall_judge(){
+  // use ultra_sound to judge if there is a wall in fornt
+  // return true if there's a wall in the front  
+  if((distance>10) && (distance<25)){
+      return true;
+    }    
+    return false;
+}
+
+bool dead_end_judge(){
+  // 全在0附近的区间里
+  bool a = sensor_judge(0, 125, 125) && sensor_judge(1, 125, 125) && sensor_judge(2, 125, 125);
+  bool b = sensor_judge(3, 125, 125) && sensor_judge(4, 125, 125) && sensor_judge(5, 125, 125);  
+  return a && b;
 }
