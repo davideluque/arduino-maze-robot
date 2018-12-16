@@ -101,6 +101,7 @@ void print_sensor_values(int position){
 }
 
 void follow_line(){
+    distance = distanceSensor.measureDistanceCm();
     int position = qtrrc.readLine(sensorValues);
 
     int error = position - 2500;
