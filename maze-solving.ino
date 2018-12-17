@@ -38,6 +38,13 @@
 
 // when following the line if there's a wall in front, try to force a turn.
 
+void spot_cylinder(){
+    if(check_for_cylinder){
+        grasp_cylinder();
+    }
+    return;
+}
+
 bool cylinder_in_channel(){
     distance = distanceSensor.measureDistanceCm();
     if(distance<70&&distance>2){ // cylinder is detected
@@ -47,16 +54,14 @@ bool cylinder_in_channel(){
 }
 
 void traverse_left(){
-    bool section1 = false;
-    bool section2 = false;
-    bool section3 = false;
-    int s2_tl = 0;
+    bool section1, section2, section3, section4, section5 = false;
     int lc = 9;
 
     // In the first T, turn left.
     while(!section1){
         follow_line();
         distance = distanceSensor.measureDistanceCm();
+        spot_cylinder();
         lc = landscape();
         Serial.println(lc);
         if (lc == 5){
@@ -64,6 +69,7 @@ void traverse_left(){
             set_motors(90, 90);
             left_turn();
             go_straight();
+            spot_cylinder();
             section1 = true;
             break;
         }
@@ -73,6 +79,7 @@ void traverse_left(){
     while(!section2){
         follow_line();
         distance = distanceSensor.measureDistanceCm();
+        spot_cylinder();
         lc = landscape();
         Serial.println(lc);
         if (lc == 6){
@@ -80,6 +87,7 @@ void traverse_left(){
             set_motors(90, 90);
             left_turn();
             go_straight();
+            spot_cylinder();
             section2 = true;
             break;
         }
@@ -90,6 +98,7 @@ void traverse_left(){
     while (!section3){
         follow_line();
         distance = distanceSensor.measureDistanceCm();
+        spot_cylinder();
         lc = landscape();
         Serial.println(lc);
         if (lc == 6){
@@ -97,15 +106,112 @@ void traverse_left(){
             set_motors(90, 90);
             if (cylinder_in_channel()){
                 go_straight();
+                distance = distanceSensor.measureDistanceCm();
+                spot_cylinder();
+                lc = landscape();
+                while (lc != 9){
+                    go_straight();
+                    distance = distanceSensor.measureDistanceCm();
+                    spot_cylinder();
+                    lc = landscape();
+                }
+                distance = distanceSensor.measureDistanceCm();
+                spot_cylinder();
+                lc = landscape();
+                while (lc != 5){
+                    follow_line();
+                    distance = distanceSensor.measureDistanceCm();
+                    spot_cylinder();
+                    lc = landscape();
+                }
+                set_motors(90, 90);
+                left_turn();
+                go_straight();
+                distance = distanceSensor.measureDistanceCm();
+                spot_cylinder();
+                lc = landscape();
+                while(lc != 2){
+                    follow_line();
+                    distance = distanceSensor.measureDistanceCm();
+                    spot_cylinder();
+                    lc = landscape();
+                }
+                go_straight();
+                go_straight();
+                spot_cylinder();
+                while(lc != 4){
+                    follow_line();
+                    distance = distanceSensor.measureDistanceCm();
+                    spot_cylinder();
+                    lc = landscape();
+                }
+                go_straight();
+                go_straight();
+                while(lc != 4){
+                    follow_line();
+                    distance = distanceSensor.measureDistanceCm();
+                    lc = landscape();
+                }
+                go_straight();
+                spot_cylinder();
+                section3 = true;
+                // Solve the line removed... that is, traverse right.
+                return;
             }
             else{
                 left_turn();
                 go_straight();
+                spot_cylinder();
                 section3 = true;
                 break;
             }
         }
     }
+
+    // Go through all the channel until you find the T.
+    while(!section4){
+        follow_line();
+        distance = distanceSensor.measureDistanceCm();
+        spot_cylinder();
+        lc = landscape();
+        Serial.println(lc);
+        if (lc == 5){
+            Serial.println("I am in T");
+            set_motors(90, 90);
+            left_turn();
+            go_straight();
+            spot_cylinder();
+            section4 = true;
+            break;
+        }
+    }
+
+    // PID will manage to do the dead end, after that
+    // force it to go straight and try to solve no line 
+    // case.
+    while(!section5){
+        follow_line();
+        distance = distanceSensor.measureDistanceCm();
+        spot_cylinder();
+        lc = landscape();
+        Serial.println(lc);
+        if (lc == 4){
+            set_motors(90, 90);
+            distance = distanceSensor.measureDistanceCm();
+            spot_cylinder();
+            lc = landscape();
+            while (lc != 8){
+                go_straight();
+                distance = distanceSensor.measureDistanceCm();
+                spot_cylinder();
+                lc = landscape();
+            }
+            break;
+        }
+    }
+
+    // Solve the line removed... that is, traverse right.
+    return;
 }
 
 
@@ -164,7 +270,6 @@ void rescue_first(){
         }
         else if (lc == 7 && turn_left_times == 2 && turn_left_times_2 == 3){
             // Leave the person in the floor
-            u_turn();
             return;
         }
     }
