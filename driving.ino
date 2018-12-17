@@ -32,7 +32,7 @@ void set_motors(int left_motorspeed, int right_motorspeed) {
 void go_straight(){
     left_motor.write(0);  //左轮正转
     right_motor.write(180);
-    delay(250);
+    delay(350);
     return;
 }
 

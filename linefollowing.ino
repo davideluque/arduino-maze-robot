@@ -26,7 +26,7 @@ UltraSonicDistanceSensor distanceSensor(13, 2);
 int lastError = 0;
 
 void setup_linefollowing(){    
-    //automatic_calibration(1025, 8, &qtrrc.calibratedMinimumOn, &qtrrc.calibratedMaximumOn);    
+    //automatic_calibration(1500, 8, &qtrrc.calibratedMinimumOn, &qtrrc.calibratedMaximumOn);    
     manual_calibration();
     //print_calibrated_values();
     return;
@@ -39,6 +39,7 @@ void automatic_calibration(unsigned int min_value,
     int i;
     unsigned int max_sensor_values[6];
     unsigned int min_sensor_values[6];
+    unsigned int max_sensor_vals[6] = {1400, 1400, 1400, 1400, 1400, 2000};
     
     // Allocate the arrays if necessary.
     if(*calibratedMaximum == 0){
