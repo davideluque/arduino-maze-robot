@@ -17,8 +17,8 @@ void setup_gripping(){
     // Put gripper and lifter in rest mode (not moving)
     gripper.write(60);
     delay(1000); 
-    gripper.write(130);
-    delay(250);
+    gripper.write(110);
+    delay(150);
     gripper.write(91);
     delay(2000);
     lifter.write(0);
@@ -37,12 +37,14 @@ bool check_for_cylinder(){
 void grasp_cylinder(){
   gripper.write(60);
   delay(1000);   
-  lifter.write(115);
+  lifter.write(40);
   delay(2000);
-  gripper.write(130);
+  /*
+  gripper.write(115);
   delay(150);
   gripper.write(91);
   delay(2000);
   lifter.write(0);
   delay(2000);
+  */
 }

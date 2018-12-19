@@ -153,12 +153,7 @@ void print_calibrated_values(){
 }
 
 unsigned int landscape(){
-    for (unsigned int i = 0;i < NUM_SENSORS; i++){
-    Serial.print(i);
-    Serial.print(' ');
-    Serial.print(sensorValues[i]);
-    Serial.print('\t'); 
-  }
+
     if(left_judge()){
         k=0;
         if (wall_judge()){

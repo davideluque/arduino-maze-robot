@@ -4,38 +4,6 @@
  * 
  */
 
-// #include <PriorityQueue.h>
-
-// class Node{
-//     private:
-//         Node* father;
-//         unsigned f, g;
-//     public:
-//         /* Constructor of Node object.
-//         * @param father Pointer to parent.
-//         * @param f Represents the approximated cost of the node (f=g+h)
-//         * @param g Cost of applying an action to reach this node.
-//         */
-//         Node(Node* father, unsigned f, unsigned g) { }
-//         ~Node() { }
-
-//         unsigned get_f(){
-//             return this->f;
-//         }
-
-//         unsigned get_g(){
-//             return this->g;
-//         }
-// };
-
-// bool comparef(const Node& a, const Node& b){
-//     return *a.get_f() > *b.get_f();
-// }
-
-// void a_star(){
-//     //PriorityQueue<Node> open_list = PriorityQueue<Node>(comparef);
-// }
-
 // when following the line if there's a wall in front, try to force a turn.
 
 void spot_cylinder(){
@@ -47,7 +15,7 @@ void spot_cylinder(){
 
 bool cylinder_in_channel(){
     distance = distanceSensor.measureDistanceCm();
-    if(distance<70&&distance>2){ // cylinder is detected
+    if(distance<105&&distance>2){ // cylinder is detected
         return true;
     }
     return false;
@@ -58,14 +26,16 @@ void traverse_left(){
     int lc = 9;
 
     // In the first T, turn left.
+    k = 0;
     while(!section1){
         follow_line();
         distance = distanceSensor.measureDistanceCm();
         spot_cylinder();
-        lc = landscape();
-        Serial.println(lc);
+        k++;
+        if (k > 200){
+          lc = landscape();
+        }
         if (lc == 5){
-            Serial.println("I am in T");
             set_motors(90, 90);
             left_turn();
             go_straight();
@@ -76,14 +46,16 @@ void traverse_left(){
     }
 
     // In the cross, turn left.
+    k = 0;
     while(!section2){
         follow_line();
         distance = distanceSensor.measureDistanceCm();
         spot_cylinder();
-        lc = landscape();
-        Serial.println(lc);
+        k++;
+        if (k > 200){
+          lc = landscape();
+        }
         if (lc == 6){
-            Serial.println("I am in cross");
             set_motors(90, 90);
             left_turn();
             go_straight();
@@ -95,12 +67,15 @@ void traverse_left(){
 
     // Let PID do its thing while we 
     // encounter the cross again.
+    k = 0;
     while (!section3){
         follow_line();
         distance = distanceSensor.measureDistanceCm();
         spot_cylinder();
-        lc = landscape();
-        Serial.println(lc);
+        k++;
+        if (k > 200){
+          lc = landscape();
+        }
         if (lc == 6){
             Serial.println("I am in cross");
             set_motors(90, 90);
@@ -109,20 +84,28 @@ void traverse_left(){
                 distance = distanceSensor.measureDistanceCm();
                 spot_cylinder();
                 lc = landscape();
+                k = 0;
                 while (lc != 9){
                     go_straight();
                     distance = distanceSensor.measureDistanceCm();
                     spot_cylinder();
-                    lc = landscape();
+                    k++;
+                    if (k > 200){
+                        lc = landscape();
+                    }
                 }
                 distance = distanceSensor.measureDistanceCm();
                 spot_cylinder();
                 lc = landscape();
+                k = 0;
                 while (lc != 5){
                     follow_line();
                     distance = distanceSensor.measureDistanceCm();
                     spot_cylinder();
-                    lc = landscape();
+                    k++;
+                    if (k > 200){
+                     lc = landscape();
+                    }
                 }
                 set_motors(90, 90);
                 left_turn();
@@ -130,27 +113,39 @@ void traverse_left(){
                 distance = distanceSensor.measureDistanceCm();
                 spot_cylinder();
                 lc = landscape();
+                k = 0;
                 while(lc != 2){
                     follow_line();
                     distance = distanceSensor.measureDistanceCm();
                     spot_cylinder();
-                    lc = landscape();
+                    k++;
+                    if (k > 200){
+                        lc = landscape();
+                    }
                 }
                 go_straight();
                 go_straight();
                 spot_cylinder();
+                k = 0;
                 while(lc != 4){
                     follow_line();
                     distance = distanceSensor.measureDistanceCm();
                     spot_cylinder();
-                    lc = landscape();
+                    k++;
+                    if (k > 200){
+                        lc = landscape();
+                    }
                 }
                 go_straight();
                 go_straight();
+                k = 0;
                 while(lc != 4){
                     follow_line();
                     distance = distanceSensor.measureDistanceCm();
-                    lc = landscape();
+                    k++;
+                    if (k > 200){
+                        lc = landscape();
+                    }
                 }
                 go_straight();
                 spot_cylinder();
@@ -169,12 +164,15 @@ void traverse_left(){
     }
 
     // Go through all the channel until you find the T.
+    k = 0;
     while(!section4){
         follow_line();
         distance = distanceSensor.measureDistanceCm();
         spot_cylinder();
-        lc = landscape();
-        Serial.println(lc);
+        k++;
+        if (k > 200){
+            lc = landscape();
+        }
         if (lc == 5){
             Serial.println("I am in T");
             set_motors(90, 90);
@@ -189,22 +187,29 @@ void traverse_left(){
     // PID will manage to do the dead end, after that
     // force it to go straight and try to solve no line 
     // case.
+    k = 0;
     while(!section5){
         follow_line();
         distance = distanceSensor.measureDistanceCm();
         spot_cylinder();
-        lc = landscape();
-        Serial.println(lc);
+        k++;
+        if (k > 200){
+         lc = landscape();
+        }
         if (lc == 4){
             set_motors(90, 90);
             distance = distanceSensor.measureDistanceCm();
             spot_cylinder();
             lc = landscape();
+            k = 0;
             while (lc != 8){
                 go_straight();
                 distance = distanceSensor.measureDistanceCm();
                 spot_cylinder();
-                lc = landscape();
+                k++;
+                if (k > 200){
+                    lc = landscape();
+                }
             }
             break;
         }
@@ -220,17 +225,13 @@ void rescue_first(){
     int turn_right_times = 0;
     bool in_home = false;
     int turn_left_times = 0;
-    int turn_left_times_2 = 0;
     int lc = 9;
 
     Serial.println("Begin rescue known cylinder");
     while (!rescued){
         follow_line();
         distance = distanceSensor.measureDistanceCm();
-        lc = landscape();
-        Serial.println(lc);
         if (lc == 5 && turn_right_times < 2){
-            Serial.println("I am in T");
             set_motors(90, 90);
             right_turn();
             go_straight();
@@ -242,7 +243,7 @@ void rescue_first(){
         // and in that function is people is in front, we grasp
         // it and change rescued = true, gripped_first = true
         // and do u-turn.
-        if (turn_right_times == 2 && check_for_cylinder()){
+        if (check_for_cylinder()){
             Serial.println("I found a cylinder");
             grasp_cylinder();
             rescued = true;
@@ -256,7 +257,6 @@ void rescue_first(){
     while (!in_home){
         follow_line();
         distance = distanceSensor.measureDistanceCm();
-        lc = landscape();
         if (lc == 2 && turn_left_times < 2){
             set_motors(90, 90);
             left_turn();
@@ -264,14 +264,11 @@ void rescue_first(){
             turn_left_times++;
             continue;
         }
-        else if (lc == 1){
-          turn_left_times_2++;
-          continue;
-        }
-        else if (lc == 7 && turn_left_times == 2 && turn_left_times_2 == 3){
+        else if (lc == 7 && turn_left_times == 2){
             // Leave the person in the floor
+            in_home = true;
             return;
         }
     }
-    
+    return;
 }
